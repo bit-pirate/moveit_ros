@@ -197,8 +197,12 @@ bool KDLKinematicsPlugin::initialize(const std::string &robot_description,
   double epsilon;
   bool position_ik;
 
+  ROS_DEBUG_NAMED("kdl","Looking in private handle '%s' for parameters '%s' and '%s'",
+                  private_handle.getNamespace().c_str(), "max_solver_iterations", "epsilon");
   private_handle.param("max_solver_iterations", max_solver_iterations, 500);
+  ROS_DEBUG_NAMED("kdl", "Max. solver iterations set to %d.", max_solver_iterations);
   private_handle.param("epsilon", epsilon, 1e-5);
+  ROS_DEBUG_NAMED("kdl", "Epsilon set to %f.", epsilon);
   private_handle.param(group_name+"/position_only_ik", position_ik, false);
   ROS_DEBUG_NAMED("kdl","Looking in private handle: %s for param name: %s",
             private_handle.getNamespace().c_str(),
