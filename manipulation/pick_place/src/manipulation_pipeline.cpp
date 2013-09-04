@@ -175,7 +175,7 @@ void ManipulationPipeline::processingThread(unsigned int index)
         g->error_code_.val = moveit_msgs::MoveItErrorCodes::FAILURE;
         for (std::size_t i = 0 ; !stop_processing_ && i < stages_.size() ; ++i)
         {
-      bool res = stages_[i]->evaluate(g);
+          bool res = stages_[i]->evaluate(g);
           g->processing_stage_ = i + 1;
           if (res == false)
           {
@@ -184,10 +184,11 @@ void ManipulationPipeline::processingThread(unsigned int index)
             ROS_INFO_STREAM("Manipulation plan failed at stage '" << stages_[i]->getName() << "' on thread " << index);
             break;
           }
+          ROS_INFO_STREAM("Stage '" << stages_[i]->getName() << "' on thread " << index << " successfully evaluated.");
         }
         if (g->error_code_.val == moveit_msgs::MoveItErrorCodes::SUCCESS)
         {
-      g->processing_stage_++;
+          g->processing_stage_++;
           {
             boost::mutex::scoped_lock slock(result_lock_);
             success_.push_back(g);

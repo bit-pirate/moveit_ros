@@ -101,7 +101,8 @@ bool ReachableAndValidPoseFilter::evaluate(const ManipulationPlanPtr &plan) cons
     }
 
     // convert the pose we want to reach to a set of constraints
-    plan->goal_constraints_ = kinematic_constraints::constructGoalConstraints(plan->shared_data_->ik_link_name_, plan->goal_pose_);
+    std::cout << "std::numeric_limits<double>::epsilon(): " << std::numeric_limits<double>::epsilon() << std::endl;
+    plan->goal_constraints_ = kinematic_constraints::constructGoalConstraints(plan->shared_data_->ik_link_name_, plan->goal_pose_, 0, 1e-5);
 
     const std::string &planning_group = plan->shared_data_->planning_group_;
 
@@ -120,6 +121,7 @@ bool ReachableAndValidPoseFilter::evaluate(const ManipulationPlanPtr &plan) cons
       else
         if (verbose_)
           ROS_INFO("Sampler failed to produce a state");
+          ROS_INFO_STREAM(plan->goal_constraints_);
     }
     else
       ROS_ERROR_THROTTLE(1, "No sampler was constructed");

@@ -141,6 +141,12 @@ int ChainIkSolverPos_NR_JL_Mimic::CartToJntAdvanced(const JntArray& q_init, cons
 
   }
 
+  fksolver.JntToCart(q_temp,f);
+  delta_twist = diff(f,p_in);
+  ROS_DEBUG_STREAM_NAMED("kdl","Solution delta_twist");
+  for(std::size_t i=0; i < 6; ++i)
+    ROS_DEBUG_NAMED("kdl","%d: %f",(int) i, delta_twist(i));
+
   qMimicToq(q_temp, q_out);
   ROS_DEBUG_STREAM_NAMED("kdl","Full Solution:");
   for(std::size_t i=0; i < q_temp.rows(); ++i)

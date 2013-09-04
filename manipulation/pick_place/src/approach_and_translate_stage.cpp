@@ -115,9 +115,15 @@ bool isStateCollisionFree(const planning_scene::PlanningScene *planning_scene,
   req.group_name = joint_state_group->getName();
   planning_scene->checkCollision(req, res, *joint_state_group->getRobotState(), *collision_matrix);
   if (res.collision == false)
+  {
+    std::cout << "State is collision free." << std::endl;
     return planning_scene->isStateFeasible(*joint_state_group->getRobotState());
+  }
   else
+  {
+    std::cerr << "State is in collison!" << std::endl;
     return false;
+  }
 }
 
 bool samplePossibleGoalStates(const ManipulationPlanPtr &plan, const robot_state::RobotState &reference_state, double min_distance, unsigned int attempts)
@@ -208,7 +214,7 @@ bool ApproachAndTranslateStage::evaluate(const ManipulationPlanPtr &plan) const
   Eigen::Vector3d approach_direction, retreat_direction;
   tf::vectorMsgToEigen(plan->approach_.direction.vector, approach_direction);
   tf::vectorMsgToEigen(plan->retreat_.direction.vector, retreat_direction);
-
+  std::cout << "approach direction before: " << approach_direction << std::endl;
   // if translation vectors are specified in the frame of the ik link name, then we assume the frame is local; otherwise, the frame is global
   bool approach_direction_is_global_frame = !isEqualFrameLink(plan->approach_.direction.header.frame_id, plan->shared_data_->ik_link_name_);
   bool retreat_direction_is_global_frame  = !isEqualFrameLink(plan->retreat_.direction.header.frame_id,  plan->shared_data_->ik_link_name_);
@@ -218,8 +224,9 @@ bool ApproachAndTranslateStage::evaluate(const ManipulationPlanPtr &plan) const
     approach_direction = planning_scene_->getFrameTransform(plan->approach_.direction.header.frame_id).rotation() * approach_direction;
   if (retreat_direction_is_global_frame)
     retreat_direction = planning_scene_->getFrameTransform(plan->retreat_.direction.header.frame_id).rotation() * retreat_direction;
-
+  std::cout << "approach direction after: " << approach_direction << std::endl;
   // state validity checking during the approach must ensure that the gripper posture is that for pre-grasping
+  std::cout << "verbose_ = " << verbose_ << std::endl;
   robot_state::StateValidityCallbackFn approach_validCallback = boost::bind(&isStateCollisionFree, planning_scene_.get(),
                                                                             collision_matrix_.get(), verbose_, &plan->approach_posture_, _1, _2);
   plan->goal_sampler_->setVerbose(verbose_);
@@ -228,6 +235,7 @@ bool ApproachAndTranslateStage::evaluate(const ManipulationPlanPtr &plan) const
   {
     for (std::size_t i = attempted_possible_goal_states ; i < plan->possible_goal_states_.size() && !signal_stop_ ; ++i, ++attempted_possible_goal_states)
     {
+      std::cout << "Checking possible goal state " << i << std::endl;
       // if we are trying to get as close as possible to the goal (maximum one meter)
       if (plan->shared_data_->minimize_object_distance_)
       {
@@ -247,6 +255,10 @@ bool ApproachAndTranslateStage::evaluate(const ManipulationPlanPtr &plan) const
       // try to compute a straight line path that arrives at the goal using the specified approach direction
       robot_state::RobotStatePtr first_approach_state(new robot_state::RobotState(*plan->possible_goal_states_[i]));
 
+      std::cout << "approach direction: " << approach_direction << std::endl;
+      std::cout << "ik_link_name_: " << plan->shared_data_->ik_link_name_ << std::endl;
+      std::cout << "approach_direction_is_global_frame : " << approach_direction_is_global_frame << std::endl;
+
       std::vector<robot_state::RobotStatePtr> approach_states;
       double d_approach = first_approach_state->getJointStateGroup(plan->shared_data_->planning_group_)->
         computeCartesianPath(approach_states, plan->shared_data_->ik_link_name_,
@@ -256,6 +268,7 @@ bool ApproachAndTranslateStage::evaluate(const ManipulationPlanPtr &plan) const
       // if we were able to follow the approach direction for sufficient length, try to compute a retreat direction
       if (d_approach > plan->approach_.min_distance && !signal_stop_)
       {
+        std::cout << "Approach distance satisfied." << std::endl;
         if (plan->retreat_.desired_distance > 0.0)
         {
           // construct a planning scene that is just a diff on top of our actual planning scene
@@ -327,7 +340,7 @@ bool ApproachAndTranslateStage::evaluate(const ManipulationPlanPtr &plan) const
           return true;
         }
       }
-
+      std::cout << "Approach distance NOT satisfied. (d = " << d_approach << ")" << std::endl;
     }
   }
   while (plan->possible_goal_states_.size() < max_goal_count_ && !signal_stop_ && samplePossibleGoalStates(plan, planning_scene_->getCurrentState(), min_distance, max_fail_));
