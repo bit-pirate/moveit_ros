@@ -101,7 +101,7 @@ bool ReachableAndValidPoseFilter::evaluate(const ManipulationPlanPtr &plan) cons
     }
 
     // convert the pose we want to reach to a set of constraints
-    plan->goal_constraints_ = kinematic_constraints::constructGoalConstraints(plan->shared_data_->ik_link_name_, plan->goal_pose_);
+    plan->goal_constraints_ = kinematic_constraints::constructGoalConstraints(plan->shared_data_->ik_link_name_, plan->goal_pose_, 0, 1e-5);
 
     const std::string &planning_group = plan->shared_data_->planning_group_;
 
