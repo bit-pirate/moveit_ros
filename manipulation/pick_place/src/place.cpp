@@ -58,9 +58,13 @@ bool PlacePlan::transformToEndEffectorGoal(const geometry_msgs::PoseStamped &goa
     return false;
   Eigen::Affine3d end_effector_transform;
   tf::poseMsgToEigen(goal_pose.pose, end_effector_transform);
-  end_effector_transform = end_effector_transform * fixed_transforms[0].inverse();
+//  end_effector_transform = end_effector_transform * fixed_transforms[0].inverse();
   place_pose.header = goal_pose.header;
   tf::poseEigenToMsg(end_effector_transform, place_pose.pose);
+  std::cout << "PlacePlan::transformToEndEffectorGoal: goal pose:" << std::endl;
+  std::cout << goal_pose << std::endl;
+  std::cout << "PlacePlan::transformToEndEffectorGoal: place pose:" << std::endl;
+  std::cout << place_pose << std::endl;
   return true;
 }
 
