@@ -131,6 +131,7 @@ bool pick_place::ReachableAndValidPoseFilter::evaluate(const ManipulationPlanPtr
           ROS_INFO_STREAM(plan->goal_constraints_);
     	}
       }
+    }
     else
       ROS_ERROR_THROTTLE(1, "No sampler was constructed");
   }

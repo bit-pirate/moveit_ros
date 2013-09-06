@@ -243,7 +243,7 @@ bool ApproachAndTranslateStage::evaluate(const ManipulationPlanPtr &plan) const
       robot_state::RobotStatePtr first_approach_state(new robot_state::RobotState(*plan->possible_goal_states_[i]));
 
       std::cout << "approach direction: " << approach_direction << std::endl;
-      std::cout << "ik_link_name_: " << plan->shared_data_->ik_link_name_ << std::endl;
+      std::cout << "ik_link_name_: " << plan->shared_data_->ik_link_->getName() << std::endl;
       std::cout << "approach_direction_is_global_frame : " << approach_direction_is_global_frame << std::endl;
 
       std::vector<robot_state::RobotStatePtr> approach_states;
