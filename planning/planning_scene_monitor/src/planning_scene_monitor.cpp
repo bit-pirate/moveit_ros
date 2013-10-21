@@ -434,6 +434,16 @@ void planning_scene_monitor::PlanningSceneMonitor::newPlanningSceneCallback(cons
       }
       if (octomap_monitor_)
       {
+        if(scene->world.octomap.octomap.data.size() == 0)
+        {
+          ROS_DEBUG_STREAM("Recevied scene's octomap is empty. Will reset the stored octomap.");
+          octomap_monitor_->stopMonitor();
+          boost::recursive_mutex::scoped_lock prevent_shape_cache_updates(shape_handles_lock_);
+          occupancy_map_monitor::OccMapTreePtr octree;
+          octree = octomap_monitor_->getOcTreePtr();
+          octree->clear();
+          octomap_monitor_->startMonitor();
+        }
         excludeAttachedBodiesFromOctree(); // in case updates have happened to the attached bodies, put them in
         excludeWorldObjectsFromOctree(); // in case updates have happened to the attached bodies, put them in
       }
